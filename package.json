@@ -1,0 +1,17 @@
+{
+  "name": "auto-post-ig",
+  "version": "1.0.0",
+  "description": "Auto posting Hadis ke Instagram via Vercel Cron - API myQuran + Sharp",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "node api/cron/post.js"
+  },
+  "dependencies": {
+    "sharp": "^0.33.4",
+    "@vercel/blob": "^0.23.0"
+  }
+}
