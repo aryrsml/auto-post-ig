@@ -9,7 +9,7 @@ import { fetchHadisWithLengthFilter } from '../lib/myquran.js';
 const outDir = path.join(process.cwd(), 'tmp-preview');
 fs.mkdirSync(outDir, { recursive: true });
 
-const COUNT = 13;
+const COUNT = 2;
 const MAX_LEN = parseInt(process.env.MAX_HADIS_LEN || '180', 10);
 
 console.log(`Fetch ${COUNT} hadis random dari api.myquran.com (max ${MAX_LEN} char)...`);
