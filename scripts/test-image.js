@@ -9,7 +9,7 @@ import { fetchHadisWithLengthFilter } from '../lib/myquran.js';
 const outDir = path.join(process.cwd(), 'tmp-preview');
 fs.mkdirSync(outDir, { recursive: true });
 
-const COUNT = 5;
+const COUNT = 13;
 const MAX_LEN = parseInt(process.env.MAX_HADIS_LEN || '180', 10);
 
 console.log(`Fetch ${COUNT} hadis random dari api.myquran.com (max ${MAX_LEN} char)...`);
@@ -24,7 +24,7 @@ for (let i = 1; i <= COUNT; i++) {
   fs.writeFileSync(outPath, buf);
   console.log(` -> ${outPath} (${(buf.length / 1024).toFixed(1)} KB)`);
   // metadata untuk debug
-  fs.writeFileSync(path.join(outDir, `${name}.json`), JSON.stringify(hadis, null, 2));
+  //fs.writeFileSync(path.join(outDir, `${name}.json`), JSON.stringify(hadis, null, 2));
 }
 
 console.log(`\nSelesai. ${COUNT} file di ${outDir}`);
