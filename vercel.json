@@ -17,8 +17,8 @@
   ],
   "crons": [
     {
-      "path": "/api/cron/post",
-      "schedule": "0 12 * * *"
+      "path": "/api/cron/post.js",
+      "schedule": "0 5 * * *"
     }
   ]
 }
