@@ -7,8 +7,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "vercel dev",
-    "start": "node api/cron/post.js"
+    "dev": "vercel dev"
+    
   },
   "dependencies": {
     "sharp": "^0.33.4",
