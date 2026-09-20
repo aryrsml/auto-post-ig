@@ -4,10 +4,10 @@ import { uploadToBlobWithCleanup, createMediaContainer, publishMedia } from '../
 
 export default async function handler(req, res) {
   // Hanya allow GET/POST dari Vercel Cron atau manual dengan secret
-  const cronSecret = process.env.CRON_SECRET;
-  const auth = req.headers.authorization || '';
-  const querySecret = req.query?.secret;
-  const vercelCron = req.headers['x-vercel-cron'];
+  // const cronSecret = process.env.CRON_SECRET;
+  // const auth = req.headers.authorization || '';
+  // const querySecret = req.query?.secret;
+  // const vercelCron = req.headers['x-vercel-cron'];
 
   // Jika CRON_SECRET diset, wajib salah satu valid; Vercel Cron header dianggap valid juga
   // if (cronSecret) {
@@ -32,10 +32,10 @@ export default async function handler(req, res) {
   //console.log(`[cron] start ${new Date().toISOString()} method=${req.method} vercelCron=${vercelCron || '-'}`);
 
   try {
-    const maxLen = parseInt(process.env.MAX_HADIS_LEN || '180', 10);
+    const maxLen = parseInt(process.env.MAX_HADIS_LEN || '300', 10);
 
     // 1. Fetch hadis pendek
-    const hadis = await fetchHadisWithLengthFilter(maxLen, 15);
+    const hadis = await fetchHadisWithLengthFilter(maxLen, 5);
     console.log(`[cron] hadis id=${hadis.id} len=${hadis.textId.length} grade=${hadis.grade}`);
 
     // 2. Generate image
