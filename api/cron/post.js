@@ -10,26 +10,26 @@ export default async function handler(req, res) {
   const vercelCron = req.headers['x-vercel-cron'];
 
   // Jika CRON_SECRET diset, wajib salah satu valid; Vercel Cron header dianggap valid juga
-  if (cronSecret) {
-    const ok =
-      auth === `Bearer ${cronSecret}` ||
-      querySecret === cronSecret ||
-      vercelCron === '1';
-    if (!ok && req.headers['user-agent']?.includes('vercel-cron')) {
-      // fallback: vercel-cron tanpa header (edge case)
-    } else if (!ok) {
-      // Untuk cron resmi Vercel, biasanya ada header x-vercel-cron:1
-      // Jika tidak ada header itu dan secret tidak cocok -> unauthorized
-      // Tapi jangan block total saat local dev: allow jika tidak ada secret check
-      const isVercelCron = vercelCron === '1';
-      if (!isVercelCron) {
-        return res.status(401).json({ ok: false, error: 'Unauthorized: invalid CRON_SECRET' });
-      }
-    }
-  }
+  // if (cronSecret) {
+  //   const ok =
+  //     auth === `Bearer ${cronSecret}` ||
+  //     querySecret === cronSecret ||
+  //     vercelCron === '1';
+  //   if (!ok && req.headers['user-agent']?.includes('vercel-cron')) {
+  //     // fallback: vercel-cron tanpa header (edge case)
+  //   } else if (!ok) {
+  //     // Untuk cron resmi Vercel, biasanya ada header x-vercel-cron:1
+  //     // Jika tidak ada header itu dan secret tidak cocok -> unauthorized
+  //     // Tapi jangan block total saat local dev: allow jika tidak ada secret check
+  //     const isVercelCron = vercelCron === '1';
+  //     if (!isVercelCron) {
+  //       return res.status(401).json({ ok: false, error: 'Unauthorized: invalid CRON_SECRET' });
+  //     }
+  //   }
+  // }
 
   // Vercel Cron hanya GET; manual bisa POST
-  console.log(`[cron] start ${new Date().toISOString()} method=${req.method} vercelCron=${vercelCron || '-'}`);
+  //console.log(`[cron] start ${new Date().toISOString()} method=${req.method} vercelCron=${vercelCron || '-'}`);
 
   try {
     const maxLen = parseInt(process.env.MAX_HADIS_LEN || '180', 10);
