@@ -1,8 +1,7 @@
 name: Posting Hadis IG
 on:
   schedule:
-    #- cron: "0 0,12 * * *" # 07:00 & 19:00 WIB
-    - cron: "10 14 * * *"
+    - cron: "0 0,12 * * *" # 07:00 & 19:00 WIB
   workflow_dispatch:
 
 jobs:
