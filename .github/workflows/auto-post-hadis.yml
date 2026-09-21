@@ -20,4 +20,5 @@ jobs:
           BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
           CAPTION_HASHTAGS: ${{ vars.CAPTION_HASHTAGS }}
           MAX_HADIS_LEN: ${{ vars.MAX_HADIS_LEN }}
+          IMAGE_MAX_LEN: ${{ vars.IMAGE_MAX_LEN }}
           NODE_ENV: ${{ vars.NODE_ENV }}
