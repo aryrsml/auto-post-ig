@@ -33,26 +33,38 @@ export default async function handler(req, res) {
 
   try {
     const maxLen = parseInt(process.env.MAX_HADIS_LEN || '300', 10);
+    // Batas teks yang muat nyaman di template gambar (area ~520px).
+    // Kalau hadis lebih panjang dari ini, gambar dipotong word-safe + "…"
+    // dan teks lengkapnya dilanjutkan di caption.
+    const imageMaxLen = parseInt(process.env.IMAGE_MAX_LEN || '180', 10);
 
     // 1. Fetch hadis pendek
     const hadis = await fetchHadisWithLengthFilter(maxLen, 5);
     console.log(`[cron] hadis id=${hadis.id} len=${hadis.textId.length} grade=${hadis.grade}`);
 
-    // 2. Generate image
-    const imageBuffer = await generateFeedImage(hadis.textId, hadis.grade, hadis.takhrij);
+    // 2. Split: gambar = potongan aman, caption = teks lengkap jika kepotong
+    const { imageText, truncated } = splitForImage(hadis.textId, imageMaxLen);
+    if (truncated) {
+      console.log(`[cron] text truncated for image ${hadis.textId.length} -> ${imageText.length} chars, full text goes to caption`);
+    }
+
+    // 3. Generate image (pakai versi potongan kalau kepanjangan)
+    const imageBuffer = await generateFeedImage(imageText, hadis.grade, hadis.takhrij);
     console.log(`[cron] image generated ${imageBuffer.length} bytes`);
 
-    // 3. Upload ke Vercel Blob (cleanup lama dulu)
+    // 4. Upload ke Vercel Blob (cleanup lama dulu)
     const today = new Date().toISOString().slice(0, 10);
     const filename = `hadis-${hadis.id}-${today}.jpg`;
     const imageUrl = await uploadToBlobWithCleanup(imageBuffer, filename);
 
-    // 4. Caption hashtag only
+    // 5. Caption: hashtag saja kalau muat di gambar,
+    // kalau kepotong -> teks lengkap + footer + hashtag
     const hashtags = process.env.CAPTION_HASHTAGS || '#Hadis #HadisHarian #HaditsNabi #Sunnah #Islam #Muslim';
-    // caption IG tidak perlu teks hadis panjang lagi karena sudah di gambar; hanya hashtag
-    const caption = hashtags;
+    const caption = truncated
+      ? buildLongCaption(hadis, hashtags)
+      : hashtags;
 
-    // 5. IG Graph API
+    // 6. IG Graph API
     const creationId = await createMediaContainer(imageUrl, caption);
     const publishedId = await publishMedia(creationId);
 
@@ -63,6 +75,9 @@ export default async function handler(req, res) {
       hadisId: hadis.id,
       hadisText: hadis.textId,
       len: hadis.textId.length,
+      imageTextLen: imageText.length,
+      truncated,
+      captionPreview: caption.slice(0, 120),
       imageUrl,
       creationId,
       publishedId,
@@ -71,4 +86,30 @@ export default async function handler(req, res) {
     console.error('[cron] error', e);
     return res.status(500).json({ ok: false, error: e.message, stack: process.env.NODE_ENV === 'production' ? undefined : e.stack });
   }
+}
+
+/**
+ * Potong teks untuk gambar secara word-safe.
+ * @returns {{ imageText: string, truncated: boolean }}
+ */
+function splitForImage(text, maxLen) {
+  const clean = (text || '').trim();
+  if (clean.length <= maxLen) return { imageText: clean, truncated: false };
+  let sliced = clean.slice(0, maxLen - 1).trim();
+  const lastSpace = sliced.lastIndexOf(' ');
+  if (lastSpace > maxLen * 0.6) sliced = sliced.slice(0, lastSpace);
+  return { imageText: sliced.trim() + '…', truncated: true };
+}
+
+/**
+ * Caption saat teks kepotong di gambar: teks lengkap + grade/takhrij + hashtag.
+ */
+function buildLongCaption(hadis, hashtags) {
+  const quote = `\u201c${hadis.textId.trim()}\u201d`;
+  const footer = [hadis.grade, hadis.takhrij].filter(Boolean).join(' \u2022 ');
+  const parts = [quote];
+  if (footer) parts.push(`— ${footer}`);
+  parts.push('(Teks lengkap — lanjutan dari gambar)');
+  parts.push(hashtags);
+  return parts.join('\n\n');
 }
