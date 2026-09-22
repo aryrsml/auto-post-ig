@@ -22,3 +22,4 @@ jobs:
           MAX_HADIS_LEN: ${{ vars.MAX_HADIS_LEN }}
           IMAGE_MAX_LEN: ${{ vars.IMAGE_MAX_LEN }}
           NODE_ENV: ${{ vars.NODE_ENV }}
+          MYQURAN_BASE_URL: ${{ vars.MYQURAN_BASE_URL }}
