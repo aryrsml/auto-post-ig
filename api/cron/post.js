@@ -1,5 +1,5 @@
 import { fetchHadisWithLengthFilter } from '../../lib/myquran.js';
-import { generateFeedImage } from '../../lib/image.js';
+import { generateFeedImage, resolveTemplate, getWibDate } from '../../lib/image.js';
 import { uploadToBlobWithCleanup, createMediaContainer, publishMedia } from '../../lib/instagram.js';
 
 export default async function handler(req, res) {
@@ -48,13 +48,24 @@ export default async function handler(req, res) {
       console.log(`[cron] text truncated for image ${hadis.textId.length} -> ${imageText.length} chars, full text goes to caption`);
     }
 
+    // 2b. Template otomatis bergantian (maroon <-> hijau) berdasar slot WIB.
+    // Override manual (mis. dari cronjob.org): ?slot=pagi|siang|malam & ?template=maroon|green|auto
+    const querySlot = req.query?.slot;
+    const queryTemplate = req.query?.template;
+    const now = new Date();
+    const auto = resolveTemplate(now, querySlot || null);
+    const template = queryTemplate && queryTemplate !== 'auto' ? queryTemplate : auto.template;
+    const slot = auto.slot;
+    const wibNow = getWibDate(now).toISOString();
+    console.log(`[cron] slot=${slot} template=${template} wib=${wibNow}`);
+
     // 3. Generate image (pakai versi potongan kalau kepanjangan)
-    const imageBuffer = await generateFeedImage(imageText, hadis.grade, hadis.takhrij);
+    const imageBuffer = await generateFeedImage(imageText, hadis.grade, hadis.takhrij, template);
     console.log(`[cron] image generated ${imageBuffer.length} bytes`);
 
     // 4. Upload ke Vercel Blob (cleanup lama dulu)
-    const today = new Date().toISOString().slice(0, 10);
-    const filename = `hadis-${hadis.id}-${today}.jpg`;
+    const today = getWibDate(new Date()).toISOString().slice(0, 10);
+    const filename = `hadis-${hadis.id}-${today}-${slot}-${template}.jpg`;
     const imageUrl = await uploadToBlobWithCleanup(imageBuffer, filename);
 
     // 5. Caption: hashtag saja kalau muat di gambar,
@@ -77,6 +88,9 @@ export default async function handler(req, res) {
       len: hadis.textId.length,
       imageTextLen: imageText.length,
       truncated,
+      slot,
+      template,
+      wibNow,
       captionPreview: caption.slice(0, 120),
       imageUrl,
       creationId,
