@@ -18,7 +18,7 @@ const MAX_LEN = parseInt(process.env.MAX_HADIS_LEN || '300', 10);
 //   production yang fetch fresh setiap eksekusi).
 const now = new Date();
 for (const slot of ['pagi', 'siang', 'malam']) {
-  const hadis = await fetchHadisWithLengthFilter(MAX_LEN, 15);
+  const hadis = await fetchHadisWithLengthFilter(MAX_LEN, 5);
   const { template } = resolveTemplate(now, slot);
   console.log(`\n[${slot}/${template}] hadis-${hadis.id} len=${hadis.textId.length} grade=${hadis.grade}`);
   console.log(` text: "${hadis.textId.slice(0, 80)}${hadis.textId.length > 80 ? '...' : ''}"`);
