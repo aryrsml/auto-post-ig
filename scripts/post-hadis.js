@@ -4,7 +4,8 @@ const require = createRequire(import.meta.url);
 // Kalau file lama lu pakai export default
 const handler = (await import('../api/cron/post.js')).default;
 
-// Forward CLI args ke query: node scripts/post-hadis.js --slot=pagi --template=maroon
+// Forward CLI args ke query: node scripts/post-hadis.js --slot=pagi --template=maroon --source=doa
+// --source=hadis|doa|auto (default auto = rotasi mingguan: genap hadis v3, ganjil doa v2)
 const query = {};
 for (const arg of process.argv.slice(2)) {
   const m = arg.match(/^--([^=]+)=(.*)$/);
