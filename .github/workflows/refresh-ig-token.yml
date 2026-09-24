@@ -2,7 +2,7 @@ name: Refresh IG Access Token
 
 on:
   schedule:
-    - cron: "0 3 3 3,6,9,12 *" # Berjalan setiap 3 bulan jam 3 subuh
+    - cron: "0 3 3 1,3,5,7,9,11 *" # Berjalan setiap 2 bulan jam 3 subuh
   workflow_dispatch: {} # dipicu dari luar oleh cron-job.org
 
 permissions:
