@@ -1,12 +1,12 @@
 # auto-post-ig
 
-Auto posting Hadis harian ke Instagram (19:00 WIB) via **Github Actions** + **api.myquran.com/v3** + **Sharp** + **Vercel Blob** + **Instagram Graph API**.
+Auto posting konten Al-Qur'an harian ke Instagram (19:00 WIB) via **Github Actions** + **api.myquran.com** + **Sharp** + **Vercel Blob** + **Instagram Graph API**.
 
 ## Cara kerja
 1. cron: "0 0,12 * * *" # 07:00 & 19:00 WIB `node scripts/post-hadis.js`
-2. Fetch `GET https://api.myquran.com/v3/hadis/enc/random`, loop max 5x sampai dapat teks `10..300` char (tanpa Arab)
+2. Bergantian mingguan mengambil ayat acak dari `GET https://api.myquran.com/v3/quran/random` (teks `data.translation`) atau doa dari `GET https://api.myquran.com/v2/doa/acak`; loop maksimal 5x untuk mencari teks `10..300` karakter
 3. Generate JPEG dengan `sharp` composite: `assets/template-feed-IG.png` (850x850) + SVG text center
-4. Upload ke Vercel Blob (hapus blob lama `hadis-*` dulu, jadi hanya 1 file hari itu), dapat `image_url` publik
+4. Upload ke Vercel Blob (hapus blob lama `quran-*`, `hadis-*`, dan `doa-*` dulu), dapat `image_url` publik
 5. `POST https://graph.instagram.com/${igUserId}/media` lalu `POST .../media_publish`
 
 ## Setup

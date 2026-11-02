@@ -4,20 +4,20 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 import fs from 'node:fs';
 import path from 'node:path';
 import { generateFeedImage, resolveTemplate } from '../lib/image.js';
-import { fetchHadisWithLengthFilter, fetchDoaWithLengthFilter } from '../lib/myquran.js';
+import { fetchQuranWithLengthFilter, fetchDoaWithLengthFilter } from '../lib/myquran.js';
 
-// node scripts/test-image.js [--source=hadis|doa]
-const cliSource = (process.argv.find((a) => a.startsWith('--source=')) || '').split('=')[1] || 'hadis';
+// node scripts/test-image.js [--source=quran|doa]
+const cliSource = (process.argv.find((a) => a.startsWith('--source=')) || '').split('=')[1] || 'quran';
 
 const outDir = path.join(process.cwd(), 'tmp-preview');
 fs.mkdirSync(outDir, { recursive: true });
 
-const MAX_LEN = parseInt(process.env.MAX_HADIS_LEN || '300', 10);
+const MAX_LEN = parseInt(process.env.MAX_QURAN_LEN || process.env.MAX_HADIS_LEN || '300', 10);
 
 // Preview 3 slot hari ini (pagi/siang/malam):
 // - background mengikuti rotasi deterministik (hari genap => pagi maroon,
 //   siang hijau, malam maroon; dan sebaliknya hari ganjil).
-// - tiap slot fetch hadis random BARU dari api.myquran.com (seperti cronjob
+// - tiap slot fetch ayat Al-Qur'an random BARU dari api.myquran.com (seperti cronjob
 //   production yang fetch fresh setiap eksekusi).
 const now = new Date();
 for (const slot of ['pagi', 'siang', 'malam']) {
@@ -33,11 +33,12 @@ for (const slot of ['pagi', 'siang', 'malam']) {
     console.log(` -> ${outPath} (${(buf.length / 1024).toFixed(1)} KB)`);
     continue;
   }
-  const hadis = await fetchHadisWithLengthFilter(MAX_LEN, 5);
-  console.log(`\n[${slot}/${template}] hadis-${hadis.id} len=${hadis.textId.length} grade=${hadis.grade}`);
-  console.log(` text: "${hadis.textId.slice(0, 80)}${hadis.textId.length > 80 ? '...' : ''}"`);
-  const buf = await generateFeedImage(hadis.textId, hadis.grade, hadis.takhrij, template);
-  const outPath = path.join(outDir, `preview-${slot}-${template}-hadis-${hadis.id}.jpg`);
+  const verse = await fetchQuranWithLengthFilter(MAX_LEN, 5);
+  const ayahReference = verse.ayahNumber ? `Ayat ${verse.ayahNumber}` : '';
+  console.log(`\n[${slot}/${template}] Quran-${verse.id} len=${verse.translation.length} surah="${verse.surah}"`);
+  console.log(` text: "${verse.translation.slice(0, 80)}${verse.translation.length > 80 ? '...' : ''}"`);
+  const buf = await generateFeedImage(verse.translation, verse.surah, ayahReference, template);
+  const outPath = path.join(outDir, `preview-${slot}-${template}-quran-${verse.id}.jpg`);
   fs.writeFileSync(outPath, buf);
   console.log(` -> ${outPath} (${(buf.length / 1024).toFixed(1)} KB)`);
 }

@@ -5,7 +5,7 @@ export default function handler(req, res) {
     ver: '1.1.0',
     cron: '0 12 * * * (19:00 WIB)',
     sources: {
-      hadis: 'GET https://api.myquran.com/v3/hadis/enc/random (minggu genap WIB)',
+      quran: 'GET https://api.myquran.com/v3/quran/random, memakai data.translation (minggu genap WIB)',
       doa: 'GET https://api.myquran.com/v2/doa/acak (minggu ganjil WIB)',
     },
     endpoints: {
