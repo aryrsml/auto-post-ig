@@ -97,7 +97,7 @@ async function handleQuranPost(req, res, { maxLen, imageMaxLen, template, slot, 
 
     // 5. Caption: hashtag saja kalau muat di gambar,
     // kalau kepotong -> terjemahan lengkap + referensi ayat + hashtag
-    const hashtags = process.env.CAPTION_HASHTAGS_DOA || '#AlQuran #AyatHarian #Quran #Islam #Muslim';
+    const hashtags = process.env.CAPTION_HASHTAGS || '#AlQuran #AyatHarian #Quran #Islam #Muslim';
     const caption = truncated
       ? buildLongCaption(verse, hashtags)
       : hashtags;
